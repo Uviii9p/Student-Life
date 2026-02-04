@@ -1,0 +1,627 @@
+/* ==========================================
+   TIMETABLE & ASSIGNMENTS - ULTRA PREMIUM
+   Making tabs and pages absolutely stunning
+========================================== */
+
+/* ===== DAY SELECTOR - BEAUTIFUL TABS ===== */
+.day-selector {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: var(--surface);
+    border-radius: var(--radius-2xl);
+    margin-bottom: 2.5rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.day-selector::-webkit-scrollbar {
+    display: none;
+}
+
+.day-btn {
+    flex-shrink: 0;
+    padding: 1rem 1.75rem;
+    border-radius: var(--radius-full);
+    font-weight: 700;
+    font-size: 0.95rem;
+    background: transparent;
+    color: var(--text-muted);
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    min-width: 70px;
+    text-align: center;
+}
+
+.day-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-full);
+    padding: 2px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.day-btn.active {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    box-shadow: var(--shadow-primary);
+    transform: translateY(-2px);
+}
+
+.day-btn:not(.active):hover {
+    background: rgba(var(--primary-rgb), 0.05);
+    color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.day-btn:not(.active):hover::before {
+    opacity: 1;
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+    .day-selector {
+        padding: 0.5rem;
+        gap: 0.375rem;
+    }
+
+    .day-btn {
+        padding: 0.875rem 1.25rem;
+        font-size: 0.875rem;
+        min-width: 60px;
+    }
+}
+
+/* ===== FILTER BAR - STUNNING CHIPS ===== */
+.filter-bar {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-chip {
+    padding: 0.875rem 1.75rem;
+    border-radius: var(--radius-full);
+    font-weight: 700;
+    font-size: 0.95rem;
+    background: var(--surface);
+    color: var(--text-muted);
+    border: 2px solid var(--border);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.filter-chip::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(var(--primary-rgb), 0.1);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.filter-chip:active::before {
+    width: 300px;
+    height: 300px;
+}
+
+.filter-chip.active {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    border-color: transparent;
+    box-shadow: var(--shadow-primary);
+    transform: translateY(-2px);
+}
+
+.filter-chip:not(.active):hover {
+    background: rgba(var(--primary-rgb), 0.08);
+    color: var(--primary);
+    border-color: rgba(var(--primary-rgb), 0.3);
+    transform: translateY(-2px);
+}
+
+/* ===== TIMETABLE CARDS - PREMIUM ===== */
+.timetable-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.timetable-card {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.75rem;
+    border-radius: var(--radius-xl);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.timetable-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 100%;
+    background: currentColor;
+    opacity: 0.3;
+    transition: opacity 0.3s ease;
+}
+
+.timetable-card:hover::after {
+    opacity: 1;
+    box-shadow: 0 0 20px currentColor;
+}
+
+.timetable-card:hover {
+    transform: translateX(8px);
+    box-shadow: var(--shadow-lg);
+    border-color: rgba(var(--primary-rgb), 0.2);
+}
+
+.time-col {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.05), rgba(var(--accent-rgb), 0.05));
+    border-radius: var(--radius-lg);
+    min-width: 80px;
+}
+
+.start-time {
+    font-size: 1.25rem;
+    font-weight: 800;
+    font-family: 'Outfit', sans-serif;
+    color: var(--text);
+}
+
+.time-line {
+    width: 2px;
+    height: 20px;
+    background: linear-gradient(180deg, var(--primary), var(--accent));
+    border-radius: 1px;
+}
+
+.end-time {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.entry-main {
+    flex: 1;
+}
+
+.entry-main h3 {
+    font-size: 1.35rem;
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+}
+
+.entry-details {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+/* ===== COLOR PICKER ===== */
+.color-picker {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.color-dot {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.color-dot::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.color-dot:hover {
+    transform: scale(1.15);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.color-dot.active {
+    border-color: var(--text);
+    transform: scale(1.15);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+}
+
+.color-dot.active::before {
+    opacity: 0.1;
+}
+
+/* ===== ASSIGNMENTS LIST ===== */
+.assignments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.assignment-card {
+    display: flex;
+    gap: 1.25rem;
+    padding: 1.75rem;
+    border-radius: var(--radius-xl);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.assignment-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+}
+
+.assignment-card:hover::before {
+    transform: scaleX(1);
+}
+
+.assignment-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: rgba(var(--primary-rgb), 0.2);
+}
+
+.assignment-card.completed {
+    opacity: 0.6;
+    background: var(--surface-alt);
+}
+
+.assignment-card.completed:hover {
+    opacity: 0.8;
+}
+
+.card-check {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.check-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.check-btn:hover {
+    transform: scale(1.15);
+}
+
+.check-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 3px solid var(--border);
+    transition: all 0.3s ease;
+}
+
+.check-btn:hover .check-circle {
+    border-color: var(--primary);
+    background: rgba(var(--primary-rgb), 0.1);
+}
+
+.card-main {
+    flex: 1;
+}
+
+.card-main h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: var(--text);
+}
+
+.assignment-card.completed .card-main h3 {
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
+.card-meta {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.priority-tag {
+    padding: 0.4rem 0.9rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.priority-tag.high {
+    background: linear-gradient(135deg, var(--danger), #dc2626);
+    color: white;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
+
+.priority-tag.medium {
+    background: linear-gradient(135deg, var(--warning), #f97316);
+    color: white;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+}
+
+.priority-tag.low {
+    background: linear-gradient(135deg, var(--success), #059669);
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+/* ===== EMPTY STATES - ENHANCED ===== */
+.timetable-list .empty-state,
+.assignments-list .empty-state {
+    text-align: center;
+    padding: 5rem 2rem;
+    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.03), rgba(var(--accent-rgb), 0.03));
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-2xl);
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.empty-icon {
+    margin: 0 auto 1.5rem;
+    color: var(--primary);
+    opacity: 0.5;
+}
+
+/* ===== DELETE & EDIT BUTTONS ===== */
+.delete-entry,
+.delete-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.3s ease;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-entry:hover,
+.delete-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+    transform: translateY(-2px);
+}
+
+.edit-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.3s ease;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.edit-btn:hover {
+    background: rgba(var(--primary-rgb), 0.1);
+    color: var(--primary);
+    transform: translateY(-2px);
+}
+
+/* ===== MOBILE RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .timetable-card {
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .time-col {
+        flex-direction: row;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .time-line {
+        width: 20px;
+        height: 2px;
+    }
+
+    .assignment-card {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .card-check {
+        position: absolute;
+        top: 1.75rem;
+        left: 1.75rem;
+    }
+
+    .card-main {
+        padding-left: 3rem;
+    }
+
+    .card-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .card-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+}
+
+/* ===== LOADING SHIMMER ===== */
+@keyframes timetable-shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.timetable-card.loading,
+.assignment-card.loading {
+    position: relative;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.timetable-card.loading::after,
+.assignment-card.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.3) 50%,
+            transparent 100%);
+    animation: timetable-shimmer 1.5s infinite;
+}
+
+/* ===== ACCENT ENHANCEMENTS ===== */
+.timetable-page .page-title,
+.assignments-page .page-title {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* ===== IMPROVED ADD BUTTON FOR THESE PAGES ===== */
+.timetable-page .add-btn,
+.assignments-page .add-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.timetable-page .add-btn::after,
+.assignments-page .add-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--accent), var(--primary));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.timetable-page .add -btn:hover::after,
+.assignments-page .add-btn:hover::after {
+    opacity: 1;
+}
+
+.timetable-page .add-btn svg,
+.assignments-page .add-btn svg {
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== SCROLL ENHANCEMENTS ===== */
+.timetable-list,
+.assignments-list {
+    scroll-behavior: smooth;
+}
+
+/* ===== DARK MODE ADJUSTMENTS ===== */
+[data-theme='dark'] .day-btn:not(.active):hover {
+    background: rgba(var(--primary-rgb), 0.15);
+}
+
+[data-theme='dark'] .filter-chip:not(.active):hover {
+    background: rgba(var(--primary-rgb), 0.12);
+}
+
+[data-theme='dark'] .time-col {
+    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1), rgba(var(--accent-rgb), 0.1));
+}
+
+[data-theme='dark'] .assignment-card.completed {
+    background: rgba(255, 255, 255, 0.02);
+}
