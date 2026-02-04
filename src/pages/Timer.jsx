@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, RotateCcw, Settings, X, Save, Clock, Trash2, History, TrendingUp, BarChart3, Flame, ChevronRight } from 'lucide-react';
+import { Play, Pause, RotateCcw, Settings, X, Save, Clock, Trash2, History, TrendingUp, BarChart3, Flame, ChevronRight, Check } from 'lucide-react';
 import '../premium-pages.css';
 import { format } from 'date-fns';
 
@@ -185,27 +185,60 @@ const Timer = () => {
             className="session-name-input"
             style={{ marginBottom: '2rem', width: '100%', position: 'relative' }}
           >
-            <input
-              type="text"
-              placeholder="What subject are you focusing on?"
-              value={sessionName}
-              onChange={(e) => setSessionName(e.target.value)}
-              onFocus={() => setShowSubjectPicker(true)}
-              className="glass"
-              style={{
-                width: '100%',
-                padding: '1.25rem 1.5rem',
-                borderRadius: 'var(--radius-xl)',
-                border: '1px solid var(--border)',
-                background: 'var(--surface-alt)',
-                color: 'var(--text)',
-                fontSize: '1rem',
-                textAlign: 'center',
-                outline: 'none',
-                transition: 'all 0.3s ease',
-                boxShadow: showSubjectPicker ? '0 0 0 4px rgba(var(--primary-rgb), 0.1)' : 'none'
-              }}
-            />
+            <div style={{ position: 'relative', width: '100%' }}>
+              <input
+                type="text"
+                placeholder="What subject are you focusing on?"
+                value={sessionName}
+                onChange={(e) => setSessionName(e.target.value)}
+                onFocus={() => setShowSubjectPicker(true)}
+                className="glass"
+                style={{
+                  width: '100%',
+                  padding: '1.25rem 4rem 1.25rem 1.5rem',
+                  borderRadius: 'var(--radius-xl)',
+                  border: '1px solid var(--border)',
+                  background: 'var(--surface-alt)',
+                  color: 'var(--text)',
+                  fontSize: '1rem',
+                  textAlign: 'center',
+                  outline: 'none',
+                  transition: 'all 0.3s ease',
+                  boxShadow: showSubjectPicker ? '0 0 0 4px rgba(var(--primary-rgb), 0.1)' : 'none'
+                }}
+              />
+              <AnimatePresence>
+                {(sessionName || showSubjectPicker) && (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    onClick={() => setShowSubjectPicker(false)}
+                    style={{
+                      position: 'absolute',
+                      right: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'var(--primary)',
+                      color: 'white',
+                      border: 'none',
+                      padding: '8px 12px',
+                      borderRadius: '12px',
+                      fontSize: '0.8rem',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      boxShadow: 'var(--shadow-primary)',
+                      zIndex: 1001
+                    }}
+                  >
+                    Done <Check size={14} />
+                  </motion.button>
+                )}
+              </AnimatePresence>
+            </div>
             <AnimatePresence>
               {showSubjectPicker && suggestedSubjects.length > 0 && (
                 <>
