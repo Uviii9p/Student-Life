@@ -16,6 +16,7 @@ export const AppProvider = ({ children }) => {
   const [exams, setExams] = useState([]);
   const [notes, setNotes] = useState([]);
   const [pomodoroStats, setPomodoroStats] = useState({ daily: 0, total: 0, sessions: 0 });
+  const [timerHistory, setTimerHistory] = useState([]);
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -32,6 +33,7 @@ export const AppProvider = ({ children }) => {
         setExams(userData.exams || []);
         setNotes(userData.notes || []);
         setPomodoroStats(userData.pomodoroStats || { daily: 0, total: 0, sessions: 0 });
+        setTimerHistory(userData.timerHistory || []);
         setTheme(userData.theme || 'light');
       }
     }
@@ -50,11 +52,12 @@ export const AppProvider = ({ children }) => {
         exams,
         notes,
         pomodoroStats,
+        timerHistory,
         theme
       };
       localStorage.setItem('users_db', JSON.stringify(allUsers));
     }
-  }, [timetable, assignments, exams, notes, pomodoroStats, theme, userName, userEmail, isLoading]);
+  }, [timetable, assignments, exams, notes, pomodoroStats, timerHistory, theme, userName, userEmail, isLoading]);
 
   // Handle Theme Change
   useEffect(() => {
@@ -117,6 +120,7 @@ export const AppProvider = ({ children }) => {
     setExams([]);
     setNotes([]);
     setPomodoroStats({ daily: 0, total: 0, sessions: 0 });
+    setTimerHistory([]);
   };
 
   const toggleTheme = () => {
@@ -141,7 +145,24 @@ export const AppProvider = ({ children }) => {
   const updateNote = (id, updatedNote) => setNotes(prev => prev.map(n => n.id === id ? { ...updatedNote, date: new Date().toISOString() } : n));
   const deleteNote = (id) => setNotes(prev => prev.filter(n => n.id !== id));
 
-  const updateStudyTime = (minutes) => setPomodoroStats(prev => ({ ...prev, daily: prev.daily + minutes, total: prev.total + minutes, sessions: prev.sessions + 1 }));
+  const updateStudyTime = (minutes, label = 'Study Session') => {
+    setPomodoroStats(prev => ({
+      ...prev,
+      daily: prev.daily + minutes,
+      total: prev.total + minutes,
+      sessions: prev.sessions + 1
+    }));
+
+    const newEntry = {
+      id: Date.now().toString(),
+      label,
+      duration: minutes,
+      date: new Date().toISOString()
+    };
+    setTimerHistory(prev => [newEntry, ...prev]);
+  };
+
+  const deleteTimerHistory = (id) => setTimerHistory(prev => prev.filter(h => h.id !== id));
 
   const value = {
     theme, toggleTheme,
@@ -151,7 +172,7 @@ export const AppProvider = ({ children }) => {
     assignments, addAssignment, updateAssignment, toggleAssignment, deleteAssignment,
     exams, addExam, updateExam, deleteExam,
     notes, addNote, updateNote, deleteNote,
-    pomodoroStats, updateStudyTime,
+    pomodoroStats, timerHistory, updateStudyTime, deleteTimerHistory,
     isLoading, token, login, register, logout
   };
 

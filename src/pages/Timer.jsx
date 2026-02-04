@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, RotateCcw, Settings, X, Save, Clock } from 'lucide-react';
+import { Play, Pause, RotateCcw, Settings, X, Save, Clock, Trash2, History } from 'lucide-react';
 import '../premium-pages.css';
+import { format } from 'date-fns';
 
 const Timer = () => {
-  const { updateStudyTime, pomodoroStats } = useApp();
+  const { updateStudyTime, pomodoroStats, timerHistory, deleteTimerHistory } = useApp();
 
   // Settings State with Persistence
   const [settings, setSettings] = useState(() => {
@@ -18,6 +19,7 @@ const Timer = () => {
   const [isActive, setIsActive] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [tempSettings, setTempSettings] = useState(settings);
+  const [sessionName, setSessionName] = useState('');
 
   const timerRef = useRef(null);
 
@@ -48,7 +50,8 @@ const Timer = () => {
     audio.play().catch(() => { });
 
     if (mode === 'study') {
-      updateStudyTime(settings.study);
+      updateStudyTime(settings.study, sessionName || 'Deep Work Session');
+      setSessionName(''); // Reset after session
       setMode('break');
       setTimeLeft(settings.break * 60);
     } else {
@@ -144,6 +147,35 @@ const Timer = () => {
             ☕ Short Break
           </button>
         </div>
+
+        {mode === 'study' && !isActive && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="session-name-input"
+            style={{ marginBottom: '2rem', width: '100%' }}
+          >
+            <input
+              type="text"
+              placeholder="What are you focusing on?"
+              value={sessionName}
+              onChange={(e) => setSessionName(e.target.value)}
+              className="glass"
+              style={{
+                width: '100%',
+                padding: '1rem 1.5rem',
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid var(--border)',
+                background: 'var(--surface-alt)',
+                color: 'var(--text)',
+                fontSize: '1rem',
+                textAlign: 'center',
+                outline: 'none',
+                transition: 'all 0.3s ease'
+              }}
+            />
+          </motion.div>
+        )}
 
         <div className="timer-circle-container">
           <svg className="timer-svg" viewBox="0 0 300 300">
@@ -255,6 +287,80 @@ const Timer = () => {
             Total Focus Time
           </p>
         </motion.div>
+      </div>
+
+      {/* Timer History */}
+      <div className="timer-history-section" style={{ maxWidth: '800px', margin: '4rem auto 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
+          <History size={24} className="text-gradient" />
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Outfit', sans-serif" }}>Focus History</h2>
+        </div>
+
+        <div className="history-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <AnimatePresence>
+            {timerHistory && timerHistory.length > 0 ? (
+              timerHistory.map((item) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  className="history-item glass"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '1.25rem 1.5rem',
+                    borderRadius: 'var(--radius-xl)',
+                    border: '1px solid var(--border)',
+                    background: 'var(--surface)'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '12px',
+                      background: 'rgba(var(--primary-rgb), 0.1)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'var(--primary)'
+                    }}>
+                      <Clock size={20} />
+                    </div>
+                    <div>
+                      <h4 style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--text)' }}>{item.label}</h4>
+                      <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                        {format(new Date(item.date), 'MMM d, h:mm a')} • {item.duration} minutes
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => deleteTimerHistory(item.id)}
+                    style={{
+                      padding: '0.5rem',
+                      borderRadius: 'var(--radius-md)',
+                      border: 'none',
+                      background: 'transparent',
+                      color: 'var(--text-muted)',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.color = 'var(--danger)'}
+                    onMouseOut={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </motion.div>
+              ))
+            ) : (
+              <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                Your focus journey begins here. Complete a session to see its history.
+              </div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       <AnimatePresence>
