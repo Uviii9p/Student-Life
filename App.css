@@ -213,10 +213,10 @@
 
   .bottom-nav {
     width: 280px;
-    height: 100vh;
+    height: 100dvh;
     flex-direction: column;
     justify-content: flex-start;
-    padding: 3rem 1.5rem;
+    padding: 2rem 1.5rem;
     left: 0;
     top: 0;
     border-top: none;
@@ -225,27 +225,37 @@
     position: fixed;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    z-index: 1000;
   }
 
   .bottom-nav::-webkit-scrollbar {
-    width: 5px;
+    width: 6px;
   }
 
-  .bottom-nav::-webkit-scrollbar-thumb {
+  .bottom-nav::-webkit-scrollbar-track {
     background: transparent;
   }
 
-  .bottom-nav:hover::-webkit-scrollbar-thumb {
-    background: rgba(var(--primary-rgb), 0.2);
+  .bottom-nav::-webkit-scrollbar-thumb {
+    background: rgba(var(--text-muted), 0.2);
+    border-radius: 10px;
   }
 
+  .bottom-nav:hover::-webkit-scrollbar-thumb {
+    background: rgba(var(--primary-rgb), 0.5);
+  }
+
+  .sidebar-top {
+    flex-shrink: 0;
+  }
 
   .nav-items-wrapper {
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.25rem;
     display: flex;
     width: 100%;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
+    flex-shrink: 0;
   }
 
   .nav-item {
