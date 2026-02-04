@@ -173,7 +173,12 @@ const Timer = () => {
         }}>
           <button
             className={`mode-btn touch-target ${mode === 'study' ? 'active' : ''}`}
-            onClick={() => { setMode('study'); setTimeLeft(settings.study * 60); setIsActive(false); }}
+            onClick={() => {
+              if (!isActive) {
+                setMode('study');
+                setTimeLeft(Math.round(settings.study * 60));
+              }
+            }}
             style={{
               flex: 1,
               padding: '14px 20px',
@@ -192,7 +197,12 @@ const Timer = () => {
           </button>
           <button
             className={`mode-btn touch-target ${mode === 'break' ? 'active' : ''}`}
-            onClick={() => { setMode('break'); setTimeLeft(settings.break * 60); setIsActive(false); }}
+            onClick={() => {
+              if (!isActive) {
+                setMode('break');
+                setTimeLeft(Math.round(settings.break * 60));
+              }
+            }}
             style={{
               flex: 1,
               padding: '14px 20px',
