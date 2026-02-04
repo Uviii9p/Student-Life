@@ -443,9 +443,33 @@ const Timer = () => {
           <div className="timer-time-display" style={{
             color: 'var(--text)',
             fontFamily: "'Outfit', sans-serif",
-            fontWeight: 900
+            fontWeight: 900,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '0.25rem'
           }}>
-            {formatTime(timeLeft)}
+            <AnimatePresence>
+              {isActive && sessionName && (
+                <motion.span
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  style={{
+                    fontSize: '1rem',
+                    fontWeight: 700,
+                    color: 'var(--text-muted)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em'
+                  }}
+                >
+                  {sessionName}
+                </motion.span>
+              )}
+            </AnimatePresence>
+            <div style={{ fontSize: '4.5rem', lineHeight: 1 }}>
+              {formatTime(timeLeft)}
+            </div>
           </div>
         </div>
 
@@ -525,87 +549,7 @@ const Timer = () => {
         </motion.div>
       </div>
 
-      {/* Focus Activity Graph */}
-      <div className="focus-graph-section" style={{ maxWidth: '800px', margin: '4rem auto 0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-          <TrendingUp size={24} className="text-gradient" />
-          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Outfit', sans-serif" }}>Focus Activity</h2>
-        </div>
 
-        <div className="glass" style={{
-          padding: '2rem 1rem 1rem',
-          borderRadius: 'var(--radius-2xl)',
-          border: '1px solid var(--border)',
-          background: 'var(--surface)',
-          height: '350px',
-          width: '100%'
-        }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={hourlyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <defs>
-                <linearGradient id="colorStudy" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="colorBreak" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="var(--secondary)" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="var(--secondary)" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
-              <XAxis
-                dataKey="hour"
-                axisLine={false}
-                tickLine={false}
-                tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
-                interval={2}
-              />
-              <YAxis
-                axisLine={false}
-                tickLine={false}
-                tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
-              />
-              <Tooltip
-                contentStyle={{
-                  background: 'var(--surface)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '12px',
-                  boxShadow: 'var(--shadow-lg)'
-                }}
-                itemStyle={{ fontSize: '0.8rem', fontWeight: 700 }}
-              />
-              <Area
-                type="monotone"
-                dataKey="study"
-                stroke="var(--primary)"
-                strokeWidth={3}
-                fillOpacity={1}
-                fill="url(#colorStudy)"
-                name="Study (m)"
-              />
-              <Area
-                type="monotone"
-                dataKey="break"
-                stroke="var(--secondary)"
-                strokeWidth={3}
-                fillOpacity={1}
-                fill="url(#colorBreak)"
-                name="Break (m)"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-        <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', marginTop: '1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <div style={{ width: '12px', height: '12px', borderRadius: '4px', background: 'var(--primary)' }}></div>
-            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)' }}>Study Hours</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <div style={{ width: '12px', height: '12px', borderRadius: '4px', background: 'var(--secondary)' }}></div>
-            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)' }}>Break Time</span>
-          </div>
-        </div>
-      </div>
 
       {/* Focus Insights Section */}
       {
