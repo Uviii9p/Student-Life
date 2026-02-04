@@ -5,117 +5,113 @@ const AppContext = createContext();
 export const useApp = () => useContext(AppContext);
 
 export const AppProvider = ({ children }) => {
+  // --- State Initialization from LocalStorage ---
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+  const [token, setToken] = useState(localStorage.getItem('currentUser') || ''); // Using userEmail as token
+  const [userEmail, setUserEmail] = useState(localStorage.getItem('currentUser') || '');
   const [userName, setUserName] = useState('');
-  const [userEmail, setUserEmail] = useState('');
+
   const [timetable, setTimetable] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [exams, setExams] = useState([]);
   const [notes, setNotes] = useState([]);
   const [pomodoroStats, setPomodoroStats] = useState({ daily: 0, total: 0, sessions: 0 });
 
-  const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [isLoading, setIsLoading] = useState(true);
 
-  const API_URL = 'http://localhost:5000/api';
-
+  // Load User Data when token/email changes
   useEffect(() => {
-    if (!token) {
-      setIsLoading(false);
-      return;
+    if (userEmail) {
+      const allUsers = JSON.parse(localStorage.getItem('users_db') || '{}');
+      const userData = allUsers[userEmail];
+
+      if (userData) {
+        setUserName(userData.userName || '');
+        setTimetable(userData.timetable || []);
+        setAssignments(userData.assignments || []);
+        setExams(userData.exams || []);
+        setNotes(userData.notes || []);
+        setPomodoroStats(userData.pomodoroStats || { daily: 0, total: 0, sessions: 0 });
+        setTheme(userData.theme || 'light');
+      }
     }
+    setIsLoading(false);
+  }, [userEmail]);
 
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`${API_URL}/data`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setUserName(data.userName || '');
-          setUserEmail(data.email || '');
-          setTimetable(data.timetable || []);
-          setAssignments(data.assignments || []);
-          setExams(data.exams || []);
-          setNotes(data.notes || []);
-          setPomodoroStats(data.pomodoroStats || { daily: 0, total: 0, sessions: 0 });
-          setTheme(data.theme || 'light');
-        } else {
-          setToken('');
-          localStorage.removeItem('token');
-        }
-      } catch (err) {
-        console.error('Error fetching data:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, [token]);
-
+  // Sync Data to LocalStorage whenever it changes
   useEffect(() => {
-    if (isLoading || !token) return;
+    if (userEmail && !isLoading) {
+      const allUsers = JSON.parse(localStorage.getItem('users_db') || '{}');
+      allUsers[userEmail] = {
+        ...allUsers[userEmail],
+        userName,
+        timetable,
+        assignments,
+        exams,
+        notes,
+        pomodoroStats,
+        theme
+      };
+      localStorage.setItem('users_db', JSON.stringify(allUsers));
+    }
+  }, [timetable, assignments, exams, notes, pomodoroStats, theme, userName, userEmail, isLoading]);
 
-    const syncData = async () => {
-      const dataToSync = { userName, timetable, assignments, exams, notes, pomodoroStats, theme };
-      try {
-        await fetch(`${API_URL}/data`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(dataToSync)
-        });
-      } catch (err) {
-        console.error('Sync error:', err);
-      }
-    };
-
-    const timeout = setTimeout(syncData, 1000);
-    return () => clearTimeout(timeout);
-  }, [timetable, assignments, exams, notes, pomodoroStats, theme, userName, isLoading, token]);
-
+  // Handle Theme Change
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
   }, [theme]);
 
+  // --- Auth Actions ---
   const login = async (email, password) => {
-    const res = await fetch(`${API_URL}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-    const data = await res.json();
-    if (data.token) {
-      setToken(data.token);
-      localStorage.setItem('token', data.token);
+    // Artificial delay for feel
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    const allUsers = JSON.parse(localStorage.getItem('users_db') || '{}');
+    const user = allUsers[email];
+
+    if (user && user.password === password) {
+      setToken(email);
+      setUserEmail(email);
+      localStorage.setItem('currentUser', email);
       return { success: true };
     }
-    return { success: false, error: data.error };
+    return { success: false, error: 'Invalid email or password' };
   };
 
-  const register = async (email, password, userName) => {
-    const res = await fetch(`${API_URL}/auth/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, userName })
-    });
-    const data = await res.json();
-    if (data.token) {
-      setToken(data.token);
-      localStorage.setItem('token', data.token);
-      return { success: true };
+  const register = async (email, password, name) => {
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    const allUsers = JSON.parse(localStorage.getItem('users_db') || '{}');
+
+    if (allUsers[email]) {
+      return { success: false, error: 'User already exists' };
     }
-    return { success: false, error: data.error };
+
+    allUsers[email] = {
+      email,
+      password,
+      userName: name,
+      timetable: [],
+      assignments: [],
+      exams: [],
+      notes: [],
+      pomodoroStats: { daily: 0, total: 0, sessions: 0 },
+      theme: 'light'
+    };
+
+    localStorage.setItem('users_db', JSON.stringify(allUsers));
+    setToken(email);
+    setUserEmail(email);
+    localStorage.setItem('currentUser', email);
+    return { success: true };
   };
 
   const logout = () => {
     setToken('');
-    localStorage.removeItem('token');
-    setUserName('');
     setUserEmail('');
+    localStorage.removeItem('currentUser');
+    setUserName('');
     setTimetable([]);
     setAssignments([]);
     setExams([]);
@@ -124,28 +120,26 @@ export const AppProvider = ({ children }) => {
   };
 
   const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
-  // Helpers (CRUD)
-  const addTimetableEntry = (entry) => setTimetable([...timetable, { ...entry, id: Date.now().toString() }]);
-  const updateTimetableEntry = (id, updatedEntry) => setTimetable(timetable.map(t => t.id === id ? { ...updatedEntry, id } : t));
-  const deleteTimetableEntry = (id) => setTimetable(timetable.filter(t => t.id !== id));
+  // --- CRUD Helpers ---
+  const addTimetableEntry = (entry) => setTimetable(prev => [...prev, { ...entry, id: Date.now().toString() }]);
+  const updateTimetableEntry = (id, updatedEntry) => setTimetable(prev => prev.map(t => t.id === id ? { ...updatedEntry, id } : t));
+  const deleteTimetableEntry = (id) => setTimetable(prev => prev.filter(t => t.id !== id));
 
-  const addAssignment = (assignment) => setAssignments([...assignments, { ...assignment, id: Date.now().toString(), completed: false }]);
-  const updateAssignment = (id, updatedAssignment) => setAssignments(assignments.map(a => a.id === id ? { ...updatedAssignment, id, completed: a.completed } : a));
-  const toggleAssignment = (id) => setAssignments(assignments.map(a => a.id === id ? { ...a, completed: !a.completed } : a));
-  const deleteAssignment = (id) => setAssignments(assignments.filter(a => a.id !== id));
+  const addAssignment = (assignment) => setAssignments(prev => [...prev, { ...assignment, id: Date.now().toString(), completed: false }]);
+  const updateAssignment = (id, updatedAssignment) => setAssignments(prev => prev.map(a => a.id === id ? { ...updatedAssignment, id, completed: a.completed } : a));
+  const toggleAssignment = (id) => setAssignments(prev => prev.map(a => a.id === id ? { ...a, completed: !a.completed } : a));
+  const deleteAssignment = (id) => setAssignments(prev => prev.filter(a => a.id !== id));
 
-  const addExam = (exam) => setExams([...exams, { ...exam, id: Date.now().toString() }]);
-  const updateExam = (id, updatedExam) => setExams(exams.map(e => e.id === id ? { ...updatedExam, id } : e));
-  const deleteExam = (id) => setExams(exams.filter(e => e.id !== id));
+  const addExam = (exam) => setExams(prev => [...prev, { ...exam, id: Date.now().toString() }]);
+  const updateExam = (id, updatedExam) => setExams(prev => prev.map(e => e.id === id ? { ...updatedExam, id } : e));
+  const deleteExam = (id) => setExams(prev => prev.filter(e => e.id !== id));
 
-  const addNote = (note) => setNotes([...notes, { ...note, id: Date.now().toString(), date: new Date().toISOString() }]);
-  const updateNote = (id, updatedNote) => setNotes(notes.map(n => n.id === id ? { ...updatedNote, date: new Date().toISOString() } : n));
-  const deleteNote = (id) => setNotes(notes.filter(n => n.id !== id));
+  const addNote = (note) => setNotes(prev => [...prev, { ...note, id: Date.now().toString(), date: new Date().toISOString() }]);
+  const updateNote = (id, updatedNote) => setNotes(prev => prev.map(n => n.id === id ? { ...updatedNote, date: new Date().toISOString() } : n));
+  const deleteNote = (id) => setNotes(prev => prev.filter(n => n.id !== id));
 
   const updateStudyTime = (minutes) => setPomodoroStats(prev => ({ ...prev, daily: prev.daily + minutes, total: prev.total + minutes, sessions: prev.sessions + 1 }));
 

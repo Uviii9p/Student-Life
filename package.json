@@ -7,9 +7,10 @@
     "start": "node server.js",
     "dev": "vite",
     "build": "vite build",
+    "prod": "npm run build && node server.js",
     "lint": "eslint .",
     "preview": "vite preview",
-    "server": "nodemon server.js"
+    "server": "node server.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
