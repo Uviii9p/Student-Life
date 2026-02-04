@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, RotateCcw, Settings, X, Save, Clock, Trash2, History, TrendingUp, BarChart3, Flame, ChevronRight, Check, Coffee } from 'lucide-react';
+import { Play, Pause, RotateCcw, Settings, X, Save, Clock, Trash2, History, TrendingUp, BarChart3, Flame, ChevronRight, Check, Coffee, Target, Sparkles, BookOpen, Code, PenTool, Brain } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import '../premium-pages.css';
 import { format } from 'date-fns';
@@ -223,39 +223,53 @@ const Timer = () => {
 
         {(isActive || mode === 'study') && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="session-name-input"
-            style={{ marginBottom: '2rem', width: '100%', position: 'relative' }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="session-naming-container"
+            style={{ marginBottom: '2.5rem', width: '100%', maxWidth: '600px', margin: '0 auto 3rem' }}
           >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+              <div style={{ padding: '8px', borderRadius: '10px', background: 'rgba(var(--primary-rgb), 0.1)', color: 'var(--primary)' }}>
+                <Target size={18} />
+              </div>
+              <span style={{ fontSize: '0.9rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-muted)' }}>
+                {isActive ? 'Ongoing Focus Mission' : 'Set Your Focus Mission'}
+              </span>
+            </div>
+
             <div style={{ position: 'relative', width: '100%' }}>
               <input
                 type="text"
-                placeholder="What subject are you focusing on?"
+                placeholder={mode === 'study' ? "E.g. Quantum Physics, React Development..." : "Resting..."}
                 value={sessionName}
                 onChange={(e) => setSessionName(e.target.value)}
-                onFocus={() => setShowSubjectPicker(true)}
+                onFocus={() => mode === 'study' && setShowSubjectPicker(true)}
+                disabled={mode === 'break'}
                 className="glass"
                 style={{
                   width: '100%',
-                  padding: '1.25rem 4rem 1.25rem 1.5rem',
-                  borderRadius: 'var(--radius-xl)',
-                  border: '1px solid var(--border)',
-                  background: 'var(--surface-alt)',
+                  padding: '1.5rem 4.5rem 1.5rem 1.75rem',
+                  borderRadius: 'var(--radius-2xl)',
+                  border: '2px solid var(--border)',
+                  background: mode === 'break' ? 'transparent' : 'var(--surface-alt)',
                   color: 'var(--text)',
-                  fontSize: '1rem',
-                  textAlign: 'center',
+                  fontSize: '1.15rem',
+                  fontWeight: 700,
+                  textAlign: 'left',
                   outline: 'none',
-                  transition: 'all 0.3s ease',
-                  boxShadow: showSubjectPicker ? '0 0 0 4px rgba(var(--primary-rgb), 0.1)' : 'none'
+                  transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                  boxShadow: showSubjectPicker ? '0 0 30px rgba(var(--primary-rgb), 0.15), inset 0 0 0 1px rgba(var(--primary-rgb), 0.2)' : 'none',
+                  borderColor: showSubjectPicker ? 'var(--primary)' : 'var(--border)',
+                  opacity: mode === 'break' ? 0.6 : 1,
+                  fontFamily: "'Outfit', sans-serif"
                 }}
               />
               <AnimatePresence>
-                {(sessionName || showSubjectPicker) && (
+                {(sessionName && mode === 'study') && (
                   <motion.button
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
+                    initial={{ opacity: 0, x: 10, scale: 0.8 }}
+                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                    exit={{ opacity: 0, x: 10, scale: 0.8 }}
                     onClick={() => setShowSubjectPicker(false)}
                     style={{
                       position: 'absolute',
@@ -265,23 +279,60 @@ const Timer = () => {
                       background: 'var(--primary)',
                       color: 'white',
                       border: 'none',
-                      padding: '8px 12px',
-                      borderRadius: '12px',
-                      fontSize: '0.8rem',
+                      padding: '10px 16px',
+                      borderRadius: '14px',
+                      fontSize: '0.85rem',
                       fontWeight: 800,
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '4px',
+                      gap: '6px',
                       boxShadow: 'var(--shadow-primary)',
                       zIndex: 1001
                     }}
                   >
-                    Done <Check size={14} />
+                    Set <Check size={16} />
                   </motion.button>
                 )}
               </AnimatePresence>
             </div>
+
+            {!isActive && mode === 'study' && !sessionName && (
+              <motion.div
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '1rem', justifyContent: 'center' }}
+              >
+                {[
+                  { label: 'Reading', icon: <BookOpen size={14} /> },
+                  { label: 'Coding', icon: <Code size={14} /> },
+                  { label: 'Writing', icon: <PenTool size={14} /> },
+                  { label: 'Research', icon: <Sparkles size={14} /> }
+                ].map(cat => (
+                  <button
+                    key={cat.label}
+                    onClick={() => setSessionName(cat.label)}
+                    style={{
+                      padding: '6px 12px',
+                      borderRadius: 'var(--radius-full)',
+                      border: '1px solid var(--border)',
+                      background: 'rgba(var(--text-rgb), 0.03)',
+                      color: 'var(--text-muted)',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      cursor: 'pointer'
+                    }}
+                    onMouseOver={e => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.color = 'var(--primary)'; }}
+                    onMouseOut={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-muted)'; }}
+                  >
+                    {cat.icon} {cat.label}
+                  </button>
+                ))}
+              </motion.div>
+            )}
 
             <AnimatePresence>
               {showSubjectPicker && suggestedSubjects.length > 0 && mode === 'study' && (
@@ -294,47 +345,64 @@ const Timer = () => {
                     onClick={() => setShowSubjectPicker(false)}
                   />
                   <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    initial={{ opacity: 0, y: 15, scale: 0.98 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    exit={{ opacity: 0, y: 15, scale: 0.98 }}
                     className="glass"
                     style={{
                       position: 'absolute',
                       top: '110%',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      width: '100%',
-                      maxWidth: '500px',
+                      left: '0',
+                      right: '0',
                       zIndex: 999,
-                      borderRadius: 'var(--radius-xl)',
-                      padding: '1rem',
-                      maxHeight: '200px',
+                      borderRadius: '24px',
+                      padding: '1.25rem',
+                      maxHeight: '250px',
                       overflowY: 'auto',
                       border: '1px solid var(--border)',
-                      boxShadow: 'var(--shadow-lg)'
+                      boxShadow: '0 20px 50px rgba(0,0,0,0.15)',
+                      background: 'var(--surface)'
                     }}
                   >
-                    <p style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.75rem', textAlign: 'left', paddingLeft: '0.5rem' }}>SUGGESTED FROM YOUR SCHEDULE</p>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                      {suggestedSubjects.map(sub => (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', paddingLeft: '0.5rem' }}>
+                      <Brain size={14} className="text-gradient" />
+                      <p style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        Suggested From Schedule
+                      </p>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '0.75rem' }}>
+                      {suggestedSubjects.map((sub, idx) => (
                         <button
                           key={sub}
                           onClick={() => { setSessionName(sub); setShowSubjectPicker(false); }}
                           style={{
-                            padding: '0.5rem 1rem',
-                            borderRadius: 'var(--radius-full)',
+                            padding: '10px 14px',
+                            borderRadius: '14px',
                             border: '1px solid var(--border)',
-                            background: 'var(--surface)',
+                            background: 'var(--surface-alt)',
                             color: 'var(--text)',
-                            fontSize: '0.85rem',
-                            fontWeight: 600,
+                            fontSize: '0.9rem',
+                            fontWeight: 700,
                             cursor: 'pointer',
-                            transition: 'all 0.2s ease'
+                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                            textAlign: 'left',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between'
                           }}
-                          onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.background = 'rgba(var(--primary-rgb), 0.05)'; }}
-                          onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--surface)'; }}
+                          onMouseOver={(e) => {
+                            e.currentTarget.style.borderColor = 'var(--primary)';
+                            e.currentTarget.style.background = 'rgba(var(--primary-rgb), 0.05)';
+                            e.currentTarget.style.transform = 'translateY(-2px)';
+                          }}
+                          onMouseOut={(e) => {
+                            e.currentTarget.style.borderColor = 'var(--border)';
+                            e.currentTarget.style.background = 'var(--surface-alt)';
+                            e.currentTarget.style.transform = 'translateY(0)';
+                          }}
                         >
-                          {sub}
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sub}</span>
+                          <ChevronRight size={14} style={{ opacity: 0.5 }} />
                         </button>
                       ))}
                     </div>
