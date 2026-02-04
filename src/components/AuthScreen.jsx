@@ -65,16 +65,15 @@ const AuthScreen = ({ onLogin, onRegister }) => {
                     transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                 >
                     <div className="brand-header">
-                        <motion.div
-                            className="brand-icon"
+                        <motion.img
+                            src="/app-logo.png"
+                            className="brand-logo-img"
                             animate={{
                                 rotate: [0, 5, -5, 0],
                                 scale: [1, 1.05, 1]
                             }}
                             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                        >
-                            <Sparkles size={32} />
-                        </motion.div>
+                        />
                         <h1 className="brand-title">StudentLife</h1>
                     </div>
 

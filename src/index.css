@@ -221,3 +221,29 @@ h4,
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(var(--primary-rgb), 0.3);
 }
+
+/* Logo Styling */
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.app-logo-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 6px rgba(99, 102, 241, 0.3));
+  transition: transform 0.3s ease;
+}
+
+.logo-section:hover .app-logo-icon {
+  transform: rotate(-10deg) scale(1.1);
+}
+
+@media (min-width: 900px) {
+  .app-logo-icon {
+    width: 42px;
+    height: 42px;
+  }
+}

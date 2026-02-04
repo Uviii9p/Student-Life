@@ -107,6 +107,13 @@
     color: white;
 }
 
+.brand-logo-img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 20px rgba(var(--primary-rgb), 0.5));
+}
+
 .brand-title {
     font-size: 3.5rem;
     font-weight: 800;

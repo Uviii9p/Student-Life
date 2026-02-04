@@ -17,6 +17,26 @@ const Layout = () => {
         { path: '/timer', icon: <Timer size={22} />, label: 'Timer' },
     ];
 
+    const [deferredPrompt, setDeferredPrompt] = React.useState(null);
+
+    React.useEffect(() => {
+        const handler = (e) => {
+            e.preventDefault();
+            setDeferredPrompt(e);
+        };
+        window.addEventListener('beforeinstallprompt', handler);
+        return () => window.removeEventListener('beforeinstallprompt', handler);
+    }, []);
+
+    const handleInstallClick = async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            setDeferredPrompt(null);
+        }
+    };
+
     return (
         <div className="app-container">
             <div className="bg-blobs">
@@ -27,9 +47,15 @@ const Layout = () => {
             {/* Mobile/Tablet Header */}
             <header className="header glass">
                 <div className="logo-section" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+                    <img src="/app-logo.png" alt="StudentLife Logo" className="app-logo-icon" />
                     <h1 className="logo">StudentLife</h1>
                 </div>
                 <div className="header-actions">
+                    {deferredPrompt && (
+                        <button onClick={handleInstallClick} className="theme-toggle" style={{ color: 'var(--primary)' }}>
+                            <Cloud size={20} />
+                        </button>
+                    )}
                     <button onClick={toggleTheme} className="theme-toggle">
                         {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
                     </button>
@@ -43,6 +69,7 @@ const Layout = () => {
             <nav className="bottom-nav glass">
                 <div className="sidebar-top desktop-only">
                     <div className="logo-section" onClick={() => navigate('/')} style={{ cursor: 'pointer', marginBottom: '2rem' }}>
+                        <img src="/app-logo.png" alt="StudentLife Logo" className="app-logo-icon" />
                         <h1 className="logo">StudentLife</h1>
                     </div>
                 </div>
@@ -61,6 +88,12 @@ const Layout = () => {
                 </div>
 
                 <div className="sidebar-bottom desktop-only">
+                    {deferredPrompt && (
+                        <button onClick={handleInstallClick} className="nav-item theme-btn-sidebar" style={{ width: '100%', cursor: 'pointer', color: 'var(--primary)', background: 'rgba(var(--primary-rgb), 0.1)' }}>
+                            <span className="nav-icon"><Cloud size={22} /></span>
+                            <span className="nav-label">Install App</span>
+                        </button>
+                    )}
                     <button onClick={toggleTheme} className="nav-item theme-btn-sidebar" style={{ width: '100%', cursor: 'pointer' }}>
                         <span className="nav-icon">{theme === 'light' ? <Moon size={22} /> : <Sun size={22} />}</span>
                         <span className="nav-label">{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
