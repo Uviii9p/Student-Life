@@ -221,7 +221,7 @@ const Timer = () => {
           </button>
         </div>
 
-        {mode === 'study' && !isActive && (
+        {(isActive || mode === 'study') && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -282,8 +282,9 @@ const Timer = () => {
                 )}
               </AnimatePresence>
             </div>
+
             <AnimatePresence>
-              {showSubjectPicker && suggestedSubjects.length > 0 && (
+              {showSubjectPicker && suggestedSubjects.length > 0 && mode === 'study' && (
                 <>
                   <motion.div
                     initial={{ opacity: 0 }}
@@ -300,8 +301,10 @@ const Timer = () => {
                     style={{
                       position: 'absolute',
                       top: '110%',
-                      left: 0,
-                      right: 0,
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      width: '100%',
+                      maxWidth: '500px',
                       zIndex: 999,
                       borderRadius: 'var(--radius-xl)',
                       padding: '1rem',
@@ -537,80 +540,82 @@ const Timer = () => {
       </div>
 
       {/* Focus Insights Section */}
-      {analytics && (
-        <div className="focus-insights-section" style={{ maxWidth: '800px', margin: '4rem auto 0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-            <TrendingUp size={24} className="text-gradient" />
-            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Outfit', sans-serif" }}>Focus Insights</h2>
-          </div>
+      {
+        analytics && (
+          <div className="focus-insights-section" style={{ maxWidth: '800px', margin: '4rem auto 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
+              <TrendingUp size={24} className="text-gradient" />
+              <h2 style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Outfit', sans-serif" }}>Focus Insights</h2>
+            </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="glass"
-              style={{ padding: '1.5rem', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border)', background: 'var(--surface)' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                <div style={{ padding: '10px', borderRadius: '12px', background: 'rgba(var(--primary-rgb), 0.1)', color: 'var(--primary)' }}>
-                  <Flame size={20} />
-                </div>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>Most Focused</h3>
-              </div>
-              <p style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--primary)', fontFamily: "'Outfit', sans-serif" }}>
-                {analytics.top.name}
-              </p>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '4px' }}>
-                Total: {Math.floor(analytics.top.duration / 60)}h {analytics.top.duration % 60}m across sessions
-              </p>
-            </motion.div>
-
-            {analytics.bottom && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
               <motion.div
-                initial={{ opacity: 0, x: 20 }}
+                initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 className="glass"
                 style={{ padding: '1.5rem', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border)', background: 'var(--surface)' }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                  <div style={{ padding: '10px', borderRadius: '12px', background: 'rgba(244, 63, 94, 0.1)', color: 'var(--secondary)' }}>
-                    <BarChart3 size={20} />
+                  <div style={{ padding: '10px', borderRadius: '12px', background: 'rgba(var(--primary-rgb), 0.1)', color: 'var(--primary)' }}>
+                    <Flame size={20} />
                   </div>
-                  <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>Needs Attention</h3>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>Most Focused</h3>
                 </div>
-                <p style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--secondary)', fontFamily: "'Outfit', sans-serif" }}>
-                  {analytics.bottom.name}
+                <p style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--primary)', fontFamily: "'Outfit', sans-serif" }}>
+                  {analytics.top.name}
                 </p>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '4px' }}>
-                  Only {Math.floor(analytics.bottom.duration / 60)}h {analytics.bottom.duration % 60}m spent so far
+                  Total: {Math.floor(analytics.top.duration / 60)}h {analytics.top.duration % 60}m across sessions
                 </p>
               </motion.div>
-            )}
-          </div>
 
-          <div className="glass" style={{ marginTop: '1.5rem', padding: '1.5rem', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border)', background: 'var(--surface)' }}>
-            <h4 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '1rem' }}>Time Distribution</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {analytics.all.map((item, idx) => (
-                <div key={item.name} style={{ width: '100%' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <span style={{ fontSize: '0.9rem', fontWeight: 700 }}>{item.name}</span>
-                    <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{item.duration}m</span>
+              {analytics.bottom && (
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="glass"
+                  style={{ padding: '1.5rem', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border)', background: 'var(--surface)' }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                    <div style={{ padding: '10px', borderRadius: '12px', background: 'rgba(244, 63, 94, 0.1)', color: 'var(--secondary)' }}>
+                      <BarChart3 size={20} />
+                    </div>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>Needs Attention</h3>
                   </div>
-                  <div style={{ height: '8px', background: 'var(--surface-alt)', borderRadius: '4px', overflow: 'hidden' }}>
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${(item.duration / analytics.top.duration) * 100}%` }}
-                      transition={{ duration: 1, delay: idx * 0.1 }}
-                      style={{ height: '100%', background: idx === 0 ? 'var(--primary)' : 'var(--accent)', opacity: 1 - (idx * 0.15) }}
-                    />
+                  <p style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--secondary)', fontFamily: "'Outfit', sans-serif" }}>
+                    {analytics.bottom.name}
+                  </p>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '4px' }}>
+                    Only {Math.floor(analytics.bottom.duration / 60)}h {analytics.bottom.duration % 60}m spent so far
+                  </p>
+                </motion.div>
+              )}
+            </div>
+
+            <div className="glass" style={{ marginTop: '1.5rem', padding: '1.5rem', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border)', background: 'var(--surface)' }}>
+              <h4 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '1rem' }}>Time Distribution</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {analytics.all.map((item, idx) => (
+                  <div key={item.name} style={{ width: '100%' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                      <span style={{ fontSize: '0.9rem', fontWeight: 700 }}>{item.name}</span>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{item.duration}m</span>
+                    </div>
+                    <div style={{ height: '8px', background: 'var(--surface-alt)', borderRadius: '4px', overflow: 'hidden' }}>
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${(item.duration / analytics.top.duration) * 100}%` }}
+                        transition={{ duration: 1, delay: idx * 0.1 }}
+                        style={{ height: '100%', background: idx === 0 ? 'var(--primary)' : 'var(--accent)', opacity: 1 - (idx * 0.15) }}
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Timer History */}
       <div className="timer-history-section" style={{ maxWidth: '800px', margin: '4rem auto 0' }}>
@@ -764,7 +769,7 @@ const Timer = () => {
           </div>
         )}
       </AnimatePresence>
-    </div>
+    </div >
   );
 };
 
