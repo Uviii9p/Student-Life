@@ -11,11 +11,11 @@ const Timer = () => {
   // Settings State with Persistence
   const [settings, setSettings] = useState(() => {
     const saved = localStorage.getItem('pomodoroSettings');
-    return saved ? JSON.parse(saved) : { study: 25, break: 5 };
+    return saved ? JSON.parse(saved) : { study: 0.0833, break: 0.0833 }; // Default 5 seconds for testing
   });
 
   const [mode, setMode] = useState('study');
-  const [timeLeft, setTimeLeft] = useState(settings.study * 60);
+  const [timeLeft, setTimeLeft] = useState(Math.round(settings.study * 60));
   const [isActive, setIsActive] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [tempSettings, setTempSettings] = useState(settings);
@@ -28,7 +28,7 @@ const Timer = () => {
   useEffect(() => {
     localStorage.setItem('pomodoroSettings', JSON.stringify(settings));
     if (!isActive) {
-      setTimeLeft(mode === 'study' ? settings.study * 60 : settings.break * 60);
+      setTimeLeft(Math.round(mode === 'study' ? settings.study * 60 : settings.break * 60));
     }
   }, [settings]);
 
@@ -51,13 +51,15 @@ const Timer = () => {
     audio.play().catch(() => { });
 
     if (mode === 'study') {
-      updateStudyTime(settings.study, sessionName || 'Deep Work Session');
+      // Record at least 1 minute for history visibility during testing
+      const durationToRecord = settings.study < 1 ? 1 : Math.round(settings.study);
+      updateStudyTime(durationToRecord, sessionName || 'Deep Work Session');
       setSessionName(''); // Reset after session
       setMode('break');
-      setTimeLeft(settings.break * 60);
+      setTimeLeft(Math.round(settings.break * 60));
     } else {
       setMode('study');
-      setTimeLeft(settings.study * 60);
+      setTimeLeft(Math.round(settings.study * 60));
     }
     setIsActive(false);
   };
@@ -66,7 +68,7 @@ const Timer = () => {
 
   const resetTimer = () => {
     setIsActive(false);
-    setTimeLeft(mode === 'study' ? settings.study * 60 : settings.break * 60);
+    setTimeLeft(Math.round(mode === 'study' ? settings.study * 60 : settings.break * 60));
   };
 
   const saveSettings = () => {
