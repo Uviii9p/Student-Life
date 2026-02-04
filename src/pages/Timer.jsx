@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, RotateCcw, Settings, X, Save, Clock, Trash2, History } from 'lucide-react';
+import { Play, Pause, RotateCcw, Settings, X, Save, Clock, Trash2, History, TrendingUp, BarChart3, Flame, ChevronRight } from 'lucide-react';
 import '../premium-pages.css';
 import { format } from 'date-fns';
 
 const Timer = () => {
-  const { updateStudyTime, pomodoroStats, timerHistory, deleteTimerHistory } = useApp();
+  const { updateStudyTime, pomodoroStats, timerHistory, deleteTimerHistory, timetable } = useApp();
 
   // Settings State with Persistence
   const [settings, setSettings] = useState(() => {
@@ -20,6 +20,7 @@ const Timer = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [tempSettings, setTempSettings] = useState(settings);
   const [sessionName, setSessionName] = useState('');
+  const [showSubjectPicker, setShowSubjectPicker] = useState(false);
 
   const timerRef = useRef(null);
 
@@ -90,6 +91,35 @@ const Timer = () => {
 
   const stats = pomodoroStats || { daily: 0, total: 0, sessions: 0 };
 
+  // Calculate subject analytics
+  const getSubjectAnalytics = () => {
+    if (!timerHistory || timerHistory.length === 0) return null;
+
+    const subjectsMap = {};
+    timerHistory.forEach(entry => {
+      const label = entry.label || 'Other';
+      subjectsMap[label] = (subjectsMap[label] || 0) + entry.duration;
+    });
+
+    const sorted = Object.entries(subjectsMap)
+      .map(([name, duration]) => ({ name, duration }))
+      .sort((a, b) => b.duration - a.duration);
+
+    return {
+      top: sorted[0],
+      bottom: sorted.length > 1 ? sorted[sorted.length - 1] : null,
+      all: sorted
+    };
+  };
+
+  const analytics = getSubjectAnalytics();
+
+  // Get unique subjects from timetable and history for suggestions
+  const suggestedSubjects = Array.from(new Set([
+    ...timetable.map(t => t.subject),
+    ...(timerHistory ? timerHistory.map(h => h.label) : [])
+  ])).filter(Boolean).slice(0, 10);
+
   return (
     <div className="timer-page">
       <header className="page-header">
@@ -153,27 +183,86 @@ const Timer = () => {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="session-name-input"
-            style={{ marginBottom: '2rem', width: '100%' }}
+            style={{ marginBottom: '2rem', width: '100%', position: 'relative' }}
           >
             <input
               type="text"
-              placeholder="What are you focusing on?"
+              placeholder="What subject are you focusing on?"
               value={sessionName}
               onChange={(e) => setSessionName(e.target.value)}
+              onFocus={() => setShowSubjectPicker(true)}
               className="glass"
               style={{
                 width: '100%',
-                padding: '1rem 1.5rem',
-                borderRadius: 'var(--radius-lg)',
+                padding: '1.25rem 1.5rem',
+                borderRadius: 'var(--radius-xl)',
                 border: '1px solid var(--border)',
                 background: 'var(--surface-alt)',
                 color: 'var(--text)',
                 fontSize: '1rem',
                 textAlign: 'center',
                 outline: 'none',
-                transition: 'all 0.3s ease'
+                transition: 'all 0.3s ease',
+                boxShadow: showSubjectPicker ? '0 0 0 4px rgba(var(--primary-rgb), 0.1)' : 'none'
               }}
             />
+            <AnimatePresence>
+              {showSubjectPicker && suggestedSubjects.length > 0 && (
+                <>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    style={{ position: 'fixed', inset: 0, zIndex: 998 }}
+                    onClick={() => setShowSubjectPicker(false)}
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="glass"
+                    style={{
+                      position: 'absolute',
+                      top: '110%',
+                      left: 0,
+                      right: 0,
+                      zIndex: 999,
+                      borderRadius: 'var(--radius-xl)',
+                      padding: '1rem',
+                      maxHeight: '200px',
+                      overflowY: 'auto',
+                      border: '1px solid var(--border)',
+                      boxShadow: 'var(--shadow-lg)'
+                    }}
+                  >
+                    <p style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.75rem', textAlign: 'left', paddingLeft: '0.5rem' }}>SUGGESTED FROM YOUR SCHEDULE</p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                      {suggestedSubjects.map(sub => (
+                        <button
+                          key={sub}
+                          onClick={() => { setSessionName(sub); setShowSubjectPicker(false); }}
+                          style={{
+                            padding: '0.5rem 1rem',
+                            borderRadius: 'var(--radius-full)',
+                            border: '1px solid var(--border)',
+                            background: 'var(--surface)',
+                            color: 'var(--text)',
+                            fontSize: '0.85rem',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.background = 'rgba(var(--primary-rgb), 0.05)'; }}
+                          onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'var(--surface)'; }}
+                        >
+                          {sub}
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
           </motion.div>
         )}
 
@@ -288,6 +377,82 @@ const Timer = () => {
           </p>
         </motion.div>
       </div>
+
+      {/* Focus Insights Section */}
+      {analytics && (
+        <div className="focus-insights-section" style={{ maxWidth: '800px', margin: '4rem auto 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
+            <TrendingUp size={24} className="text-gradient" />
+            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Outfit', sans-serif" }}>Focus Insights</h2>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="glass"
+              style={{ padding: '1.5rem', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border)', background: 'var(--surface)' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                <div style={{ padding: '10px', borderRadius: '12px', background: 'rgba(var(--primary-rgb), 0.1)', color: 'var(--primary)' }}>
+                  <Flame size={20} />
+                </div>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>Most Focused</h3>
+              </div>
+              <p style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--primary)', fontFamily: "'Outfit', sans-serif" }}>
+                {analytics.top.name}
+              </p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '4px' }}>
+                Total: {Math.floor(analytics.top.duration / 60)}h {analytics.top.duration % 60}m across sessions
+              </p>
+            </motion.div>
+
+            {analytics.bottom && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="glass"
+                style={{ padding: '1.5rem', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border)', background: 'var(--surface)' }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                  <div style={{ padding: '10px', borderRadius: '12px', background: 'rgba(244, 63, 94, 0.1)', color: 'var(--secondary)' }}>
+                    <BarChart3 size={20} />
+                  </div>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>Needs Attention</h3>
+                </div>
+                <p style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--secondary)', fontFamily: "'Outfit', sans-serif" }}>
+                  {analytics.bottom.name}
+                </p>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '4px' }}>
+                  Only {Math.floor(analytics.bottom.duration / 60)}h {analytics.bottom.duration % 60}m spent so far
+                </p>
+              </motion.div>
+            )}
+          </div>
+
+          <div className="glass" style={{ marginTop: '1.5rem', padding: '1.5rem', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border)', background: 'var(--surface)' }}>
+            <h4 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '1rem' }}>Time Distribution</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {analytics.all.map((item, idx) => (
+                <div key={item.name} style={{ width: '100%' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <span style={{ fontSize: '0.9rem', fontWeight: 700 }}>{item.name}</span>
+                    <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{item.duration}m</span>
+                  </div>
+                  <div style={{ height: '8px', background: 'var(--surface-alt)', borderRadius: '4px', overflow: 'hidden' }}>
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(item.duration / analytics.top.duration) * 100}%` }}
+                      transition={{ duration: 1, delay: idx * 0.1 }}
+                      style={{ height: '100%', background: idx === 0 ? 'var(--primary)' : 'var(--accent)', opacity: 1 - (idx * 0.15) }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Timer History */}
       <div className="timer-history-section" style={{ maxWidth: '800px', margin: '4rem auto 0' }}>
