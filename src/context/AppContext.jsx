@@ -145,19 +145,22 @@ export const AppProvider = ({ children }) => {
   const updateNote = (id, updatedNote) => setNotes(prev => prev.map(n => n.id === id ? { ...updatedNote, date: new Date().toISOString() } : n));
   const deleteNote = (id) => setNotes(prev => prev.filter(n => n.id !== id));
 
-  const updateStudyTime = (minutes, label = 'Study Session') => {
-    setPomodoroStats(prev => ({
-      ...prev,
-      daily: prev.daily + minutes,
-      total: prev.total + minutes,
-      sessions: prev.sessions + 1
-    }));
+  const updateStudyTime = (minutes, label = 'Study Session', type = 'study') => {
+    if (type === 'study') {
+      setPomodoroStats(prev => ({
+        ...prev,
+        daily: prev.daily + minutes,
+        total: prev.total + minutes,
+        sessions: prev.sessions + 1
+      }));
+    }
 
     const newEntry = {
       id: Date.now().toString(),
       label,
       duration: minutes,
-      date: new Date().toISOString()
+      date: new Date().toISOString(),
+      type
     };
     setTimerHistory(prev => [newEntry, ...prev]);
   };

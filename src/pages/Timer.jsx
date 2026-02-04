@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, RotateCcw, Settings, X, Save, Clock, Trash2, History, TrendingUp, BarChart3, Flame, ChevronRight, Check } from 'lucide-react';
+import { Play, Pause, RotateCcw, Settings, X, Save, Clock, Trash2, History, TrendingUp, BarChart3, Flame, ChevronRight, Check, Coffee } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import '../premium-pages.css';
 import { format } from 'date-fns';
 
@@ -53,11 +54,13 @@ const Timer = () => {
     if (mode === 'study') {
       // Record at least 1 minute for history visibility during testing
       const durationToRecord = settings.study < 1 ? 1 : Math.round(settings.study);
-      updateStudyTime(durationToRecord, sessionName || 'Deep Work Session');
+      updateStudyTime(durationToRecord, sessionName || 'Deep Work Session', 'study');
       setSessionName(''); // Reset after session
       setMode('break');
       setTimeLeft(Math.round(settings.break * 60));
     } else {
+      const durationToRecord = settings.break < 1 ? 1 : Math.round(settings.break);
+      updateStudyTime(durationToRecord, 'Rest & Recharge', 'break');
       setMode('study');
       setTimeLeft(Math.round(settings.study * 60));
     }
@@ -115,6 +118,34 @@ const Timer = () => {
   };
 
   const analytics = getSubjectAnalytics();
+
+  // Hourly Activity Data for Graph
+  const getHourlyData = () => {
+    const hours = Array.from({ length: 24 }, (_, i) => ({
+      hour: `${i === 0 ? 12 : i > 12 ? i - 12 : i}${i >= 12 ? 'PM' : 'AM'}`,
+      study: 0,
+      break: 0
+    }));
+
+    if (!timerHistory) return hours;
+
+    timerHistory.forEach(entry => {
+      const date = new Date(entry.date);
+      // Only show today's data or within last 24h
+      if (new Date().getTime() - date.getTime() < 24 * 60 * 60 * 1000) {
+        const hour = date.getHours();
+        if (entry.type === 'break') {
+          hours[hour].break += entry.duration;
+        } else {
+          hours[hour].study += entry.duration;
+        }
+      }
+    });
+
+    return hours;
+  };
+
+  const hourlyData = getHourlyData();
 
   // Get unique subjects from timetable and history for suggestions
   const suggestedSubjects = Array.from(new Set([
@@ -413,6 +444,88 @@ const Timer = () => {
         </motion.div>
       </div>
 
+      {/* Focus Activity Graph */}
+      <div className="focus-graph-section" style={{ maxWidth: '800px', margin: '4rem auto 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
+          <TrendingUp size={24} className="text-gradient" />
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, fontFamily: "'Outfit', sans-serif" }}>Focus Activity</h2>
+        </div>
+
+        <div className="glass" style={{
+          padding: '2rem 1rem 1rem',
+          borderRadius: 'var(--radius-2xl)',
+          border: '1px solid var(--border)',
+          background: 'var(--surface)',
+          height: '350px',
+          width: '100%'
+        }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={hourlyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <defs>
+                <linearGradient id="colorStudy" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="colorBreak" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--secondary)" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="var(--secondary)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+              <XAxis
+                dataKey="hour"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
+                interval={2}
+              />
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
+              />
+              <Tooltip
+                contentStyle={{
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '12px',
+                  boxShadow: 'var(--shadow-lg)'
+                }}
+                itemStyle={{ fontSize: '0.8rem', fontWeight: 700 }}
+              />
+              <Area
+                type="monotone"
+                dataKey="study"
+                stroke="var(--primary)"
+                strokeWidth={3}
+                fillOpacity={1}
+                fill="url(#colorStudy)"
+                name="Study (m)"
+              />
+              <Area
+                type="monotone"
+                dataKey="break"
+                stroke="var(--secondary)"
+                strokeWidth={3}
+                fillOpacity={1}
+                fill="url(#colorBreak)"
+                name="Break (m)"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+        <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', marginTop: '1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ width: '12px', height: '12px', borderRadius: '4px', background: 'var(--primary)' }}></div>
+            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)' }}>Study Hours</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ width: '12px', height: '12px', borderRadius: '4px', background: 'var(--secondary)' }}></div>
+            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)' }}>Break Time</span>
+          </div>
+        </div>
+      </div>
+
       {/* Focus Insights Section */}
       {analytics && (
         <div className="focus-insights-section" style={{ maxWidth: '800px', margin: '4rem auto 0' }}>
@@ -521,13 +634,13 @@ const Timer = () => {
                       width: '40px',
                       height: '40px',
                       borderRadius: '12px',
-                      background: 'rgba(var(--primary-rgb), 0.1)',
+                      background: item.type === 'break' ? 'rgba(244, 63, 94, 0.1)' : 'rgba(var(--primary-rgb), 0.1)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: 'var(--primary)'
+                      color: item.type === 'break' ? 'var(--secondary)' : 'var(--primary)'
                     }}>
-                      <Clock size={20} />
+                      {item.type === 'break' ? <Coffee size={20} /> : <Clock size={20} />}
                     </div>
                     <div>
                       <h4 style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--text)' }}>{item.label}</h4>
