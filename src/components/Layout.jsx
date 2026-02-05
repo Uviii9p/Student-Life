@@ -5,7 +5,7 @@ import { useApp } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 
 const Layout = () => {
-    const { theme, toggleTheme, logout } = useApp();
+    const { theme, toggleTheme, logout, profileImage } = useApp();
     const navigate = useNavigate();
 
     const navItems = [
@@ -59,8 +59,12 @@ const Layout = () => {
                     <button onClick={toggleTheme} className="theme-toggle">
                         {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
                     </button>
-                    <button onClick={() => navigate('/profile')} className="theme-toggle">
-                        <User size={20} />
+                    <button onClick={() => navigate('/profile')} className="theme-toggle profile-toggle">
+                        {profileImage ? (
+                            <img src={profileImage} alt="Profile" className="nav-avatar-img" />
+                        ) : (
+                            <User size={20} />
+                        )}
                     </button>
                 </div>
             </header>
@@ -99,7 +103,13 @@ const Layout = () => {
                         <span className="nav-label">{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
                     </button>
                     <button onClick={() => navigate('/profile')} className="nav-item profile-btn-sidebar" style={{ width: '100%', cursor: 'pointer' }}>
-                        <span className="nav-icon"><User size={22} /></span>
+                        <span className="nav-icon">
+                            {profileImage ? (
+                                <img src={profileImage} alt="Profile" className="nav-avatar-img-sidebar" />
+                            ) : (
+                                <User size={22} />
+                            )}
+                        </span>
                         <span className="nav-label">My Profile</span>
                     </button>
                     <button onClick={logout} className="nav-item logout-btn-sidebar" style={{ width: '100%', cursor: 'pointer', marginTop: '1rem', color: 'var(--danger)' }}>

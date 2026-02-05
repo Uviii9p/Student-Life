@@ -10,6 +10,7 @@ export const AppProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('currentUser') || ''); // Using userEmail as token
   const [userEmail, setUserEmail] = useState(localStorage.getItem('currentUser') || '');
   const [userName, setUserName] = useState('');
+  const [profileImage, setProfileImage] = useState('');
 
   const [timetable, setTimetable] = useState([]);
   const [assignments, setAssignments] = useState([]);
@@ -28,6 +29,7 @@ export const AppProvider = ({ children }) => {
 
       if (userData) {
         setUserName(userData.userName || '');
+        setProfileImage(userData.profileImage || '');
         setTimetable(userData.timetable || []);
         setAssignments(userData.assignments || []);
         setExams(userData.exams || []);
@@ -47,6 +49,7 @@ export const AppProvider = ({ children }) => {
       allUsers[userEmail] = {
         ...allUsers[userEmail],
         userName,
+        profileImage,
         timetable,
         assignments,
         exams,
@@ -121,6 +124,7 @@ export const AppProvider = ({ children }) => {
     setNotes([]);
     setPomodoroStats({ daily: 0, total: 0, sessions: 0 });
     setTimerHistory([]);
+    setProfileImage('');
   };
 
   const toggleTheme = () => {
@@ -170,6 +174,7 @@ export const AppProvider = ({ children }) => {
   const value = {
     theme, toggleTheme,
     userName, setUserName,
+    profileImage, setProfileImage,
     userEmail,
     timetable, addTimetableEntry, updateTimetableEntry, deleteTimetableEntry,
     assignments, addAssignment, updateAssignment, toggleAssignment, deleteAssignment,

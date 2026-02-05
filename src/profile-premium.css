@@ -87,6 +87,12 @@
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.avatar-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 .avatar-large::before {
     content: '';
     position: absolute;

@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { motion } from 'framer-motion';
 import { User, Mail, Shield, Settings, LogOut, Award, Book, Clock, Camera } from 'lucide-react';
 
 const Profile = () => {
-    const { userName, userEmail, pomodoroStats, assignments, exams, logout, setUserName, token } = useApp();
+    const { userName, userEmail, pomodoroStats, assignments, exams, logout, setUserName, profileImage, setProfileImage, token } = useApp();
     const [isEditing, setIsEditing] = useState(false);
     const [newName, setNewName] = useState(userName);
+    const fileInputRef = useRef(null);
 
     const stats = [
         { label: 'Study Hours', value: `${Math.floor(pomodoroStats.total / 60)}h`, icon: <Clock size={20} />, color: '#6366f1' },
@@ -18,6 +19,21 @@ const Profile = () => {
         setUserName(newName);
         setIsEditing(false);
         // Sync happens automatically via AppContext useEffect
+    };
+
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setProfileImage(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const triggerFileInput = () => {
+        fileInputRef.current.click();
     };
 
     return (
@@ -36,9 +52,22 @@ const Profile = () => {
                     <div className="profile-header">
                         <div className="avatar-container">
                             <div className="avatar-large">
-                                {userName ? userName.charAt(0).toUpperCase() : <User />}
+                                {profileImage ? (
+                                    <img src={profileImage} alt={userName} />
+                                ) : (
+                                    userName ? userName.charAt(0).toUpperCase() : <User />
+                                )}
                             </div>
-                            <button className="avatar-edit"><Camera size={16} /></button>
+                            <button className="avatar-edit" onClick={triggerFileInput}>
+                                <Camera size={16} />
+                            </button>
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                hidden
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                            />
                         </div>
                         <div className="profile-main-info">
                             {isEditing ? (

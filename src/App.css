@@ -115,6 +115,21 @@
   box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.2);
 }
 
+.nav-avatar-img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary);
+}
+
+.nav-avatar-img-sidebar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 .nav-items-wrapper {
   display: flex;
   justify-content: space-around;

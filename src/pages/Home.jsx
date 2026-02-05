@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import '../dashboard-premium.css';
 
 const Home = () => {
-  const { assignments, exams, pomodoroStats, userName, updateAssignment } = useApp();
+  const { assignments, exams, pomodoroStats, userName, updateAssignment, profileImage } = useApp();
   const navigate = useNavigate();
 
   const priorityOrder = { 'High': 1, 'Medium': 2, 'Low': 3 };
@@ -53,7 +53,12 @@ const Home = () => {
         <div className="hero-bg-pattern"></div>
         <div className="hero-graphic"></div>
         <div className="hero-content">
-          <h1>Welcome back, {userName ? userName.split(' ')[0] : 'Scholar'}!</h1>
+          <div className="hero-profile-header">
+            {profileImage && (
+              <img src={profileImage} alt="Profile" className="hero-avatar" />
+            )}
+            <h1>Welcome back, {userName ? userName.split(' ')[0] : 'Scholar'}!</h1>
+          </div>
           <p>
             You have {pendingAssignments.length} pending tasks and {exams.length} exams tracked.
             Let's make today productive! 🚀
